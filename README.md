@@ -1,8 +1,9 @@
 
 
-# Color Palette Generator (Vite + React)
 
-Tiny color palette generator for deployment practice. Click a swatch to copy its hex code. Lock a color to keep it while regenerating the rest.
+# Markdown Notes App (Vite + React)
+
+Simple markdown-powered notes app. Create notes, edit with markdown, and preview live. Notes persist in localStorage for local testing and deployment practice.
 
 Quick start
 
@@ -13,7 +14,8 @@ Quick start
 
 Deploy notes
 
-- Works with static hosting providers (Netlify, Vercel, Cloudflare Pages). Set build command to `npm run build` and publish `dist/`.
-- The repo includes a GitHub Actions workflow to publish `dist/` to GitHub Pages using `peaceiris/actions-gh-pages`.
+- Static hosts (Netlify, Vercel, Cloudflare Pages) are supported — set build to `npm run build` and publish `dist/`.
+- Included GitHub Actions workflow will publish `dist/` to GitHub Pages if configured.
+
 
 

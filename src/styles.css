@@ -43,3 +43,19 @@ button{background:var(--accent);color:white;border:0;padding:10px 12px;border-ra
 .lock{background:rgba(255,255,255,0.7);border:0;padding:6px;border-radius:6px;cursor:pointer}
 .swatch-copy{width:100%;background:rgba(0,0,0,0.18);color:white;border:0;padding:10px 8px;font-weight:600;cursor:pointer}
 .controls{display:flex;gap:10px;margin-top:12px}
+
+/* Notes app styles */
+.notes-app .notes-card{display:flex;gap:12px;align-items:flex-start}
+.sidebar{width:220px}
+.sidebar-top{display:flex;align-items:center;justify-content:space-between}
+.note-list{list-style:none;padding:0;margin-top:12px;max-height:60vh;overflow:auto}
+.note-list li{display:flex;align-items:center;justify-content:space-between;padding:8px;border-radius:6px;cursor:pointer}
+.note-list li.active{background:rgba(11,95,255,0.08)}
+.note-list .note-title{flex:1}
+.note-list .delete{background:transparent;border:0;color:#c33}
+.editor{flex:1;display:flex;flex-direction:column}
+.editor .title{font-size:1.1rem;padding:8px;border-radius:6px;border:1px solid #dfeaff;margin-bottom:8px}
+.editor .body{flex:1;padding:8px;border-radius:6px;border:1px solid #dfeaff;min-height:220px}
+.preview{width:320px}
+.preview-content{background:white;padding:10px;border-radius:6px;border:1px solid #eef4ff;max-height:70vh;overflow:auto}
+.no-active{color:#778;padding:20px}

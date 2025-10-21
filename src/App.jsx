@@ -1,74 +1,69 @@
 import React from 'react'
+import { marked } from 'marked'
 
-function randHex() {
-  return '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')
-}
-
-function copy(text) {
-  if (navigator.clipboard) return navigator.clipboard.writeText(text)
-  const t = document.createElement('textarea')
-  t.value = text
-  document.body.appendChild(t)
-  t.select()
-  document.execCommand('copy')
-  document.body.removeChild(t)
-  return Promise.resolve()
+function newNote() {
+  return { id: Date.now().toString(36), title: 'Untitled', body: '# New note' }
 }
 
 export default function App() {
-  const [palette, setPalette] = React.useState(() => Array.from({ length: 5 }, () => randHex()))
-  const [copied, setCopied] = React.useState(null)
+  const [notes, setNotes] = React.useState(() => {
+    try { return JSON.parse(localStorage.getItem('notes') || '[]') } catch { return [] }
+  })
+  const [active, setActive] = React.useState(notes[0]?.id || null)
 
-  function regenerate() {
-    setPalette(Array.from({ length: 5 }, () => randHex()))
+  React.useEffect(() => localStorage.setItem('notes', JSON.stringify(notes)), [notes])
+
+  function create() {
+    const n = newNote()
+    setNotes([n, ...notes])
+    setActive(n.id)
   }
 
-  function lockAt(i) {
-    // simple 'lock' toggle by prefixing with "!" to indicate locked
-    setPalette(p => p.map((c, idx) => idx === i ? (c.startsWith('!') ? c.slice(1) : ('!' + c)) : c))
+  function remove(id) {
+    setNotes(notes.filter(n => n.id !== id))
+    if (active === id) setActive(notes[0]?.id || null)
   }
 
-  function regenerateUnlocked() {
-    setPalette(p => p.map(c => (c.startsWith('!') ? c : randHex())))
+  function update(id, patch) {
+    setNotes(notes.map(n => n.id === id ? { ...n, ...patch } : n))
   }
 
-  function clickCopy(hex) {
-    const clean = hex.startsWith('!') ? hex.slice(1) : hex
-    copy(clean).then(() => {
-      setCopied(clean)
-      setTimeout(() => setCopied(null), 1200)
-    })
-  }
+  const activeNote = notes.find(n => n.id === active) || null
 
   return (
-    <div className="app palette-app">
-      <div className="card">
-        <h1>Color Palette Generator</h1>
-        <p className="subtitle">Click a swatch to copy hex. Lock any color to keep it while regenerating.</p>
-
-        <div className="palette">
-          {palette.map((c, i) => {
-            const locked = c.startsWith('!')
-            const hex = locked ? c.slice(1) : c
-            return (
-              <div key={i} className="swatch" style={{ background: hex }}>
-                <div className="swatch-top">
-                  <button className="lock" onClick={() => lockAt(i)}>{locked ? '🔒' : '🔓'}</button>
-                </div>
-                <button className="swatch-copy" onClick={() => clickCopy(c)}>
-                  {copied === hex ? 'Copied' : hex}
-                </button>
-              </div>
-            )
-          })}
+    <div className="app notes-app">
+      <div className="card notes-card">
+        <div className="sidebar">
+          <div className="sidebar-top">
+            <h2>Notes</h2>
+            <button onClick={create}>New</button>
+          </div>
+          <ul className="note-list">
+            {notes.map(n => (
+              <li key={n.id} className={n.id === active ? 'active' : ''} onClick={() => setActive(n.id)}>
+                <div className="note-title">{n.title}</div>
+                <button className="delete" onClick={(e) => { e.stopPropagation(); remove(n.id) }}>Del</button>
+              </li>
+            ))}
+            {notes.length === 0 && <li className="empty">No notes yet</li>}
+          </ul>
         </div>
 
-        <div className="controls">
-          <button onClick={regenerate}>Generate</button>
-          <button onClick={regenerateUnlocked}>Generate Unlocked</button>
+        <div className="editor">
+          {activeNote ? (
+            <>
+              <input className="title" value={activeNote.title} onChange={e => update(activeNote.id, { title: e.target.value })} />
+              <textarea className="body" value={activeNote.body} onChange={e => update(activeNote.id, { body: e.target.value })} />
+            </>
+          ) : (
+            <div className="no-active">Select or create a note</div>
+          )}
         </div>
 
-        <small className="hint">Small palette tool — ready for deployment</small>
+        <div className="preview">
+          <h3>Preview</h3>
+          <div className="preview-content" dangerouslySetInnerHTML={{ __html: marked.parse(activeNote?.body || '') }} />
+        </div>
       </div>
     </div>
   )
