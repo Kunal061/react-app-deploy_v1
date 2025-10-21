@@ -1,0 +1,44 @@
+.about {
+  padding: 6rem 2rem;
+  position: relative;
+}
+
+.about-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+.about-inner:hover {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-5px);
+}
+
+.about-inner h2 {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.about-inner p {
+  font-size: 1.1rem;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .about {
+    padding: 4rem 1rem;
+  }
+  
+  .about-inner {
+    padding: 2rem 1.5rem;
+  }
+}

@@ -1,0 +1,32 @@
+.site-footer {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 4rem;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.footer-inner::before {
+  content: '✨';
+  margin-right: 0.5rem;
+}
+
+.footer-inner::after {
+  content: '✨';
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 2rem 1rem;
+  }
+}
