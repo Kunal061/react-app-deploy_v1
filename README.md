@@ -1,6 +1,7 @@
-# React Vite Random App
 
-Minimal Vite + React app that shows a random quote and background color. Useful for deployment practice.
+# React Vite Todo App
+
+Small Vite + React task manager (Todo) for deployment practice. Tasks are stored in localStorage so they persist in your browser.
 
 Quick start
 
@@ -11,5 +12,6 @@ Quick start
 
 Deploy notes
 
-- To deploy to static hosts (Netlify, Vercel, Cloudflare Pages) just connect the repo and use the `build` command.
-- For GitHub Pages, this repository includes a GitHub Actions workflow to publish the `dist` folder. Configure the `GITHUB_TOKEN` and set `pages` branch in the repo settings if needed.
+- To deploy to static hosts (Netlify, Vercel, Cloudflare Pages) just connect the repo and set the build command to `npm run build` and publish `dist/`.
+- The repository includes a GitHub Actions workflow to publish `dist/` to GitHub Pages using `peaceiris/actions-gh-pages` (it will push to `gh-pages`). Ensure `GITHUB_TOKEN` is available (default) in Actions.
+

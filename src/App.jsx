@@ -1,39 +1,68 @@
 import React from 'react'
 
-const QUOTES = [
-  "The only limit to our realization of tomorrow is our doubts of today.",
-  "Do what you can, with what you have, where you are.",
-  "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-  "You miss 100% of the shots you don't take.",
-  "Simplicity is the ultimate sophistication."
-]
-
-function randomColor() {
-  const r = Math.floor(Math.random() * 200) + 30
-  const g = Math.floor(Math.random() * 200) + 30
-  const b = Math.floor(Math.random() * 200) + 30
-  return `rgb(${r}, ${g}, ${b})`
+function uid() {
+  return Math.random().toString(36).slice(2, 9)
 }
 
 export default function App() {
-  const [quote, setQuote] = React.useState(QUOTES[0])
-  const [bg, setBg] = React.useState(() => randomColor())
+  const [tasks, setTasks] = React.useState(() => {
+    try {
+      const raw = localStorage.getItem('tasks')
+      return raw ? JSON.parse(raw) : []
+    } catch {
+      return []
+    }
+  })
+  const [text, setText] = React.useState('')
 
-  function next() {
-    const q = QUOTES[Math.floor(Math.random() * QUOTES.length)]
-    setQuote(q)
-    setBg(randomColor())
+  React.useEffect(() => {
+    try { localStorage.setItem('tasks', JSON.stringify(tasks)) } catch {}
+  }, [tasks])
+
+  function add() {
+    const v = text.trim()
+    if (!v) return
+    setTasks([{ id: uid(), text: v, done: false }, ...tasks])
+    setText('')
+  }
+
+  function toggle(id) {
+    setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t))
+  }
+
+  function remove(id) {
+    setTasks(tasks.filter(t => t.id !== id))
   }
 
   return (
-    <div className="app" style={{ background: bg }}>
+    <div className="app">
       <div className="card">
-        <h1>Random Quote</h1>
-        <p className="quote">"{quote}"</p>
-        <div className="controls">
-          <button onClick={next}>New Quote</button>
+        <h1>Todo — Simple Task Manager</h1>
+
+        <div className="input-row">
+          <input
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && add()}
+            placeholder="Add a new task and press Enter"
+          />
+          <button onClick={add}>Add</button>
         </div>
-        <small className="hint">Deploy-ready Vite + React app</small>
+
+        <ul className="task-list">
+          {tasks.length === 0 && <li className="empty">No tasks yet — add one above</li>}
+          {tasks.map(t => (
+            <li key={t.id} className={t.done ? 'done' : ''}>
+              <label>
+                <input type="checkbox" checked={t.done} onChange={() => toggle(t.id)} />
+                <span className="text">{t.text}</span>
+              </label>
+              <button className="remove" onClick={() => remove(t.id)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+
+        <small className="hint">LocalStorage-backed, build-ready Vite + React app</small>
       </div>
     </div>
   )

@@ -9,19 +9,27 @@ html,body,#root{height:100%;margin:0}
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:24px;
-  transition:background 300ms ease;
+  padding:32px;
+  background:linear-gradient(180deg,#f3f7ff, #eef4ff);
 }
 .card{
   background:var(--card-bg);
   border-radius:12px;
-  padding:28px;
-  max-width:640px;
+  padding:22px;
+  max-width:720px;
   width:100%;
-  box-shadow:0 6px 30px rgba(0,0,0,0.12);
-  text-align:center;
+  box-shadow:0 8px 40px rgba(20,30,80,0.08);
 }
-.quote{font-size:1.25rem;margin:18px 0}
-.controls{margin-top:12px}
-button{background:var(--accent);color:white;border:0;padding:10px 16px;border-radius:8px;cursor:pointer}
-.hint{display:block;margin-top:14px;color:#333;opacity:0.7}
+h1{margin:0 0 12px 0;font-size:1.35rem}
+.input-row{display:flex;gap:10px;margin-bottom:14px}
+input[type="text"], input{
+  flex:1;padding:10px 12px;border-radius:8px;border:1px solid #d7e1ff;background:white;outline:none
+}
+button{background:var(--accent);color:white;border:0;padding:10px 12px;border-radius:8px;cursor:pointer}
+.task-list{list-style:none;padding:0;margin:0}
+.task-list li{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;margin-bottom:8px;background:rgba(10,20,60,0.02)}
+.task-list li.done .text{text-decoration:line-through;opacity:0.6}
+.task-list li .remove{background:transparent;color:#b21;border-radius:6px;padding:6px 8px;border:1px solid rgba(178,33,33,0.08)}
+.task-list li .text{margin-left:8px}
+.empty{color:#667;opacity:0.8;padding:10px;text-align:center}
+.hint{display:block;margin-top:12px;color:#333;opacity:0.7}
