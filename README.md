@@ -1,7 +1,8 @@
 
-# React Vite Todo App
 
-Small Vite + React task manager (Todo) for deployment practice. Tasks are stored in localStorage so they persist in your browser.
+# Color Palette Generator (Vite + React)
+
+Tiny color palette generator for deployment practice. Click a swatch to copy its hex code. Lock a color to keep it while regenerating the rest.
 
 Quick start
 
@@ -12,6 +13,7 @@ Quick start
 
 Deploy notes
 
-- To deploy to static hosts (Netlify, Vercel, Cloudflare Pages) just connect the repo and set the build command to `npm run build` and publish `dist/`.
-- The repository includes a GitHub Actions workflow to publish `dist/` to GitHub Pages using `peaceiris/actions-gh-pages` (it will push to `gh-pages`). Ensure `GITHUB_TOKEN` is available (default) in Actions.
+- Works with static hosting providers (Netlify, Vercel, Cloudflare Pages). Set build command to `npm run build` and publish `dist/`.
+- The repo includes a GitHub Actions workflow to publish `dist/` to GitHub Pages using `peaceiris/actions-gh-pages`.
+
 

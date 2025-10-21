@@ -1,68 +1,74 @@
 import React from 'react'
 
-function uid() {
-  return Math.random().toString(36).slice(2, 9)
+function randHex() {
+  return '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')
+}
+
+function copy(text) {
+  if (navigator.clipboard) return navigator.clipboard.writeText(text)
+  const t = document.createElement('textarea')
+  t.value = text
+  document.body.appendChild(t)
+  t.select()
+  document.execCommand('copy')
+  document.body.removeChild(t)
+  return Promise.resolve()
 }
 
 export default function App() {
-  const [tasks, setTasks] = React.useState(() => {
-    try {
-      const raw = localStorage.getItem('tasks')
-      return raw ? JSON.parse(raw) : []
-    } catch {
-      return []
-    }
-  })
-  const [text, setText] = React.useState('')
+  const [palette, setPalette] = React.useState(() => Array.from({ length: 5 }, () => randHex()))
+  const [copied, setCopied] = React.useState(null)
 
-  React.useEffect(() => {
-    try { localStorage.setItem('tasks', JSON.stringify(tasks)) } catch {}
-  }, [tasks])
-
-  function add() {
-    const v = text.trim()
-    if (!v) return
-    setTasks([{ id: uid(), text: v, done: false }, ...tasks])
-    setText('')
+  function regenerate() {
+    setPalette(Array.from({ length: 5 }, () => randHex()))
   }
 
-  function toggle(id) {
-    setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t))
+  function lockAt(i) {
+    // simple 'lock' toggle by prefixing with "!" to indicate locked
+    setPalette(p => p.map((c, idx) => idx === i ? (c.startsWith('!') ? c.slice(1) : ('!' + c)) : c))
   }
 
-  function remove(id) {
-    setTasks(tasks.filter(t => t.id !== id))
+  function regenerateUnlocked() {
+    setPalette(p => p.map(c => (c.startsWith('!') ? c : randHex())))
+  }
+
+  function clickCopy(hex) {
+    const clean = hex.startsWith('!') ? hex.slice(1) : hex
+    copy(clean).then(() => {
+      setCopied(clean)
+      setTimeout(() => setCopied(null), 1200)
+    })
   }
 
   return (
-    <div className="app">
+    <div className="app palette-app">
       <div className="card">
-        <h1>Todo — Simple Task Manager</h1>
+        <h1>Color Palette Generator</h1>
+        <p className="subtitle">Click a swatch to copy hex. Lock any color to keep it while regenerating.</p>
 
-        <div className="input-row">
-          <input
-            value={text}
-            onChange={e => setText(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && add()}
-            placeholder="Add a new task and press Enter"
-          />
-          <button onClick={add}>Add</button>
+        <div className="palette">
+          {palette.map((c, i) => {
+            const locked = c.startsWith('!')
+            const hex = locked ? c.slice(1) : c
+            return (
+              <div key={i} className="swatch" style={{ background: hex }}>
+                <div className="swatch-top">
+                  <button className="lock" onClick={() => lockAt(i)}>{locked ? '🔒' : '🔓'}</button>
+                </div>
+                <button className="swatch-copy" onClick={() => clickCopy(c)}>
+                  {copied === hex ? 'Copied' : hex}
+                </button>
+              </div>
+            )
+          })}
         </div>
 
-        <ul className="task-list">
-          {tasks.length === 0 && <li className="empty">No tasks yet — add one above</li>}
-          {tasks.map(t => (
-            <li key={t.id} className={t.done ? 'done' : ''}>
-              <label>
-                <input type="checkbox" checked={t.done} onChange={() => toggle(t.id)} />
-                <span className="text">{t.text}</span>
-              </label>
-              <button className="remove" onClick={() => remove(t.id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
+        <div className="controls">
+          <button onClick={regenerate}>Generate</button>
+          <button onClick={regenerateUnlocked}>Generate Unlocked</button>
+        </div>
 
-        <small className="hint">LocalStorage-backed, build-ready Vite + React app</small>
+        <small className="hint">Small palette tool — ready for deployment</small>
       </div>
     </div>
   )

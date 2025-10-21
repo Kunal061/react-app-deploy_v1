@@ -33,3 +33,13 @@ button{background:var(--accent);color:white;border:0;padding:10px 12px;border-ra
 .task-list li .text{margin-left:8px}
 .empty{color:#667;opacity:0.8;padding:10px;text-align:center}
 .hint{display:block;margin-top:12px;color:#333;opacity:0.7}
+
+/* Palette app styles */
+.palette-app .card{max-width:900px}
+.subtitle{margin:6px 0 12px;color:#556}
+.palette{display:flex;gap:12px;margin:14px 0}
+.swatch{flex:1;position:relative;border-radius:8px;overflow:hidden;min-height:120px;display:flex;align-items:flex-end}
+.swatch-top{position:absolute;top:8px;left:8px}
+.lock{background:rgba(255,255,255,0.7);border:0;padding:6px;border-radius:6px;cursor:pointer}
+.swatch-copy{width:100%;background:rgba(0,0,0,0.18);color:white;border:0;padding:10px 8px;font-weight:600;cursor:pointer}
+.controls{display:flex;gap:10px;margin-top:12px}
