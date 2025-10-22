@@ -7,7 +7,7 @@ pipeline {
     }
 
     options {
-        // Abort previous running build when new build starts
+        // Abort previous running build if new build starts
         disableConcurrentBuilds()
     }
 
@@ -39,15 +39,15 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('client') {
+                    // Clean node_modules and previous builds for a fresh install
                     sh 'rm -rf node_modules dist'
                     sh 'npm install'
-                    // Force reinstall esbuild to fix binary compatibility issues
                     sh 'npm install esbuild --force'
                 }
             }
         }
 
-        stage('Build and Run App') {
+        stage('Build and Deploy') {
             steps {
                 dir('client') {
                     sh 'npm run build'
