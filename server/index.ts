@@ -4,6 +4,13 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
+// Ensure Express respects the NODE_ENV environment variable. By default
+// Express uses 'development' which will enable the Vite dev middleware.
+// For production builds (including when NODE_ENV is not explicitly set
+// in some deployment environments) we default to 'production' so the
+// server serves the built static assets.
+app.set('env', process.env.NODE_ENV || 'production');
+
 declare module 'http' {
   interface IncomingMessage {
     rawBody: unknown
