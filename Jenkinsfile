@@ -1,8 +1,13 @@
 pipeline {
     agent { label 'pop' }
 
+    environment {
+        PORT = '3000'
+        HOST = '0.0.0.0'
+    }
+
     options {
-        // Prevent concurrent builds; if a new build starts, abort the previous.
+        // Abort previous running build when new build starts
         disableConcurrentBuilds()
     }
 
@@ -42,14 +47,9 @@ pipeline {
         stage('Build and Run App') {
             steps {
                 sh 'npm run build'
-                // Notify user about URL
                 sh '''
                   IP=$(curl -s ifconfig.me)
-                  PORT=3000
                   echo "Your Next.js app will run at http://$IP:$PORT"
-                '''
-                // Run app in foreground; this will keep the Jenkins job running until you abort
-                sh '''
                   npm start
                 '''
             }
