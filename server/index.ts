@@ -71,11 +71,58 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  // Try to start the server on the configured port. If the port is in use
+  // (EADDRINUSE), attempt the next port up to a small number of retries.
+  // This makes local development more resilient when the default port is busy.
+  const maxRetries = parseInt(process.env.PORT_TRIES || "10", 10);
+  const startPort = port;
+
+  const startServerOnPort = (p: number) =>
+    new Promise<void>((resolve, reject) => {
+      const onError = (err: any) => {
+        server.off("listening", onListen);
+        server.off("error", onError);
+        reject(err);
+      };
+
+      const onListen = () => {
+        server.off("error", onError);
+        server.off("listening", onListen);
+        resolve();
+      };
+
+      server.once("error", onError);
+      server.once("listening", onListen);
+
+      try {
+        server.listen({ port: p, host: "0.0.0.0" });
+      } catch (err) {
+        server.off("error", onError);
+        server.off("listening", onListen);
+        reject(err);
+      }
+    });
+
+  (async () => {
+    for (let i = 0; i < maxRetries; i++) {
+      const tryPort = startPort + i;
+      try {
+        await startServerOnPort(tryPort);
+        log(`serving on port ${tryPort}`);
+        break;
+      } catch (err: any) {
+        if (err && err.code === "EADDRINUSE") {
+          log(`port ${tryPort} in use, trying next port...`);
+          // continue to next iteration
+          if (i === maxRetries - 1) {
+            log(`failed to bind to a port after ${maxRetries} attempts`);
+            process.exit(1);
+          }
+        } else {
+          log(`server error during startup: ${err?.code || err?.message || err}`);
+          process.exit(1);
+        }
+      }
+    }
+  })();
 })();
