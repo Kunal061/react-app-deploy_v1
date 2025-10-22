@@ -3,7 +3,17 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
+
+declare module 'http' {
+  interface IncomingMessage {
+    rawBody: unknown
+  }
+}
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
@@ -57,68 +67,15 @@ app.use((req, res, next) => {
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Default to 5000 if not specified. Prefer binding to localhost in environments
-  // where binding to 0.0.0.0 is not supported (some sandboxed CI or container runtimes).
+  // Other ports are firewalled. Default to 5000 if not specified.
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
-  const requestedHost = process.env.HOST || '127.0.0.1';
-
-  // Try a sequence of hosts and options to handle environments where binding to
-  // certain addresses or using reusePort is not supported (e.g. sandboxed runners).
-  const hostCandidates: Array<string | undefined> = [requestedHost, '127.0.0.1', 'localhost', undefined];
-
-  async function tryListen(host: string | undefined, reusePort: boolean) {
-    return new Promise<void>((resolve, reject) => {
-      const opts: any = { port };
-      if (host) opts.host = host;
-      if (reusePort) opts.reusePort = true;
-
-      const onListening = () => {
-        log(`serving on ${host ?? '0.0.0.0'}:${port} ${reusePort ? '(reusePort)' : ''}`);
-        server.removeListener('error', onError);
-        resolve();
-      };
-
-      const onError = (err: any) => {
-        server.removeListener('listening', onListening);
-        reject(err);
-      };
-
-      server.once('error', onError);
-      server.once('listening', onListening);
-      try {
-        // Node's server.listen may throw synchronously on some invalid options
-        server.listen(opts);
-      } catch (err) {
-        server.removeListener('listening', onListening);
-        server.removeListener('error', onError);
-        reject(err);
-      }
-    });
-  }
-
-  (async () => {
-    // Try every candidate host, first with reusePort=true then with reusePort=false
-    for (const host of hostCandidates) {
-      for (const reuse of [true, false]) {
-        try {
-          await tryListen(host, reuse);
-          return; // success
-        } catch (err: any) {
-          // If operation not supported, try next candidate; otherwise exit with the error
-          if (err && err.code === 'ENOTSUP') {
-            log(`ENOTSUP when binding ${host ?? '0.0.0.0'}:${port} (reusePort=${reuse}), trying next option`);
-            // continue to next attempt
-          } else if (err && err.code === 'EADDRINUSE') {
-            log(`port ${port} already in use on ${host ?? '0.0.0.0'}; ${reuse ? 'reusePort' : 'no-reuse'} - trying next option`);
-          } else {
-            log(`server listen failed: ${err && err.message ? err.message : String(err)}`);
-            process.exit(1);
-          }
-        }
-      }
-    }
-
-    log('failed to bind to any host/option combination; exiting');
-    process.exit(1);
-  })();
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
 })();
