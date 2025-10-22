@@ -1,99 +1,67 @@
 pipeline {
-	agent { label 'pop' }
+    agent { label 'pop' }
 
-	environment {
-		REPO_URL = 'https://github.com/Kunal061/react-app-deploy_v1.git'
-		NODE_ENV = 'production'
-		PORT = '5000'
-	}
+    options {
+        // Prevent concurrent builds; if a new build starts, abort the previous.
+        disableConcurrentBuilds()
+    }
 
-	options {
-		ansiColor('xterm')
-		timeout(time: 15, unit: 'MINUTES')
-		buildDiscarder(logRotator(numToKeepStr: '10'))
-	}
+    stages {
+        stage('Prepare Environment') {
+            steps {
+                script {
+                    def isNodeInstalled = sh(script: "command -v node || true", returnStdout: true).trim()
+                    def isNpmInstalled = sh(script: "command -v npm || true", returnStdout: true).trim()
+                    if (!isNodeInstalled || !isNpmInstalled) {
+                        echo 'Node.js or npm not found, installing...'
+                        sh '''
+                          sudo apt update
+                          sudo apt install -y nodejs npm
+                        '''
+                    } else {
+                        echo 'Node.js and npm already installed'
+                    }
+                }
+            }
+        }
 
-	stages {
-		stage('Prepare') {
-			steps {
-				script {
-					// ensure workspace is clean
-					deleteDir()
-				}
-			}
-		}
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/Kunal061/react-app-deploy_v1.git', branch: 'main'
+            }
+        }
 
-		stage('Clone') {
-			steps {
-				// checkout the requested repo explicitly
-				git url: env.REPO_URL, branch: 'main'
-			}
-		}
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+                // Force reinstall esbuild to fix exec format error
+                sh 'npm install esbuild --force'
+            }
+        }
 
-		stage('Install') {
-			steps {
-				sh 'npm ci'
-			}
-		}
+        stage('Build and Run App') {
+            steps {
+                sh 'npm run build'
+                // Notify user about URL
+                sh '''
+                  IP=$(curl -s ifconfig.me)
+                  PORT=3000
+                  echo "Your Next.js app will run at http://$IP:$PORT"
+                '''
+                // Run app in foreground; this will keep the Jenkins job running until you abort
+                sh '''
+                  npm start
+                '''
+            }
+        }
+    }
 
-		stage('Build') {
-			steps {
-				sh 'npm run build'
-			}
-		}
-
-		stage('Archive') {
-			steps {
-				archiveArtifacts artifacts: 'dist/**', fingerprint: true
-			}
-		}
-
-		stage('Smoke Start') {
-			steps {
-					// Start the app in the background for a short smoke test then kill it
-					sh '''
-						# determine public IP (fallback to localhost)
-						IP=$(curl -s ifconfig.me || echo "127.0.0.1")
-
-						# Use PORT if already set in the environment, otherwise default to 3000
-						export PORT=${PORT:-3000}
-						# Force the server to bind to 0.0.0.0 so it's reachable externally
-						export HOST=${HOST:-0.0.0.0}
-
-						echo "Starting app with HOST=$HOST PORT=$PORT (public IP: $IP)"
-
-						# Start using inline assignment so the child process definitely gets the vars
-						HOST=$HOST PORT=$PORT npm run start &
-						pid=$!
-						echo "started pid=$pid"
-
-						# wait a few seconds for startup
-						sleep 5
-
-						# try to curl the public IP and port
-						if command -v curl >/dev/null 2>&1; then
-							echo "curl http://$IP:$PORT/"
-							curl -sSf "http://$IP:$PORT/" || true
-						fi
-
-						# kill the background process if still running
-						kill $pid || true
-					'''
-			}
-		}
-	}
-
-	post {
-		always {
-			sh 'echo "Cleaning workspace"'
-			deleteDir()
-		}
-		success {
-			echo 'Build succeeded.'
-		}
-		failure {
-			echo 'Build failed. See logs above.'
-		}
-	}
+    post {
+        success {
+            echo 'Deployment succeeded!'
+        }
+        failure {
+            echo 'Deployment failed!'
+        }
+    }
 }
-
