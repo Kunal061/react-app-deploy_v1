@@ -1,10 +1,5 @@
 pipeline {
-	agent {
-		docker {
-			image 'node:20'
-			args '--init --network host'
-		}
-	}
+	agent { label 'pop' }
 
 	environment {
 		REPO_URL = 'https://github.com/Kunal061/react-app-deploy_v1.git'
