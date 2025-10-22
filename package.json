@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "start": "NODE_ENV=production node dist/index.js",
+  "start": "NODE_ENV=production node dist/index.js",
+  "prestart": "node -e \"const fs=require('fs'); if(!fs.existsSync('./dist/index.js')){ console.log('dist/index.js missing, running build...'); const { execSync } = require('child_process'); execSync('npm run build', { stdio: 'inherit' }); }\"",
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },
