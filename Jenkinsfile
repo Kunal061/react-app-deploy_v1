@@ -38,20 +38,25 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
-                // Force reinstall esbuild to fix exec format error
-                sh 'npm install esbuild --force'
+                dir('client') {
+                    sh 'rm -rf node_modules dist'
+                    sh 'npm install'
+                    // Force reinstall esbuild to fix binary compatibility issues
+                    sh 'npm install esbuild --force'
+                }
             }
         }
 
         stage('Build and Run App') {
             steps {
-                sh 'npm run build'
-                sh '''
-                  IP=$(curl -s ifconfig.me)
-                  echo "Your Next.js app will run at http://$IP:$PORT"
-                  npm start
-                '''
+                dir('client') {
+                    sh 'npm run build'
+                    sh '''
+                      IP=$(curl -s ifconfig.me)
+                      echo "Your Next.js app will run at http://$IP:$PORT"
+                      npm start
+                    '''
+                }
             }
         }
     }
