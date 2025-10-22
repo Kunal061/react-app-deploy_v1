@@ -1,150 +1,135 @@
-# DevOps & Cloud Engineering Portfolio - Design Guidelines
+# Design Guidelines: Risha Batra - Cybersecurity Portfolio
 
 ## Design Approach
+**Reference-Based Approach**: Using Udit Mathur's portfolio as the exact visual foundation while adapting content for cybersecurity focus. Maintaining identical UI patterns, color schemes, backgrounds, and interaction models.
 
-**Selected Approach**: Reference-Based with technical aesthetic inspiration from GitHub, Vercel, Linear, and AWS Console interfaces.
-
-**Justification**: Portfolio sites require visual appeal to showcase work while maintaining professional credibility in the technical field. The design should communicate both technical expertise and modern web development skills.
-
-**Key Design Principles**:
-- Technical sophistication with clean execution
-- Information hierarchy emphasizing skills and projects
-- Performance-focused minimal animations
-- Professional credibility through polished presentation
+---
 
 ## Core Design Elements
 
 ### A. Color Palette
-
-**Dark Mode Primary** (default):
-- Background: 220 20% 8% (deep navy-black)
-- Surface: 220 18% 12% (elevated dark gray)
-- Text Primary: 0 0% 95%
-- Text Secondary: 220 10% 65%
-
-**Accent Colors**:
-- Primary (AWS Orange): 25 95% 60% 
-- Secondary (Cloud Blue): 200 80% 55%
-- Success (Green): 145 65% 50%
-
-**Light Mode** (if implemented):
-- Background: 0 0% 98%
-- Surface: 0 0% 100%
-- Text Primary: 220 20% 15%
+**Exact Match to Reference Portfolio**
+- **Background**: Dark gradient theme (appears to be deep navy/black gradient: 240 15% 8% to 240 10% 3%)
+- **Primary Text**: White/off-white (0 0% 98%)
+- **Accent Color**: Cyan/blue highlights (200 95% 60%) for interactive elements and emphasis
+- **Secondary Text**: Muted gray (240 5% 65%)
+- **Card Backgrounds**: Semi-transparent dark with subtle border (240 12% 12% with 15% opacity)
 
 ### B. Typography
-
-**Font Families**:
-- Primary: 'Inter' (Google Fonts) - body text, navigation, labels
-- Accent: 'JetBrains Mono' (Google Fonts) - code snippets, technical callouts, terminal effects
-
-**Type Scale**:
-- Hero Headline: text-5xl md:text-6xl lg:text-7xl, font-bold
-- Section Headers: text-3xl md:text-4xl, font-bold
-- Subsection Headers: text-xl md:text-2xl, font-semibold
-- Body Text: text-base md:text-lg, font-normal
-- Small Text/Labels: text-sm, font-medium
-- Code/Terminal: text-sm font-mono
+- **Headings**: Bold, large sans-serif (likely Inter or similar) - 4xl to 6xl font sizes
+- **Body Text**: 16-18px base size, line-height 1.6
+- **Tagline/Hero**: Extra large display text (6xl-7xl) with gradient effect
+- **Tech Labels**: Uppercase, smaller tracking, 12-14px
 
 ### C. Layout System
-
-**Spacing Primitives**: Use Tailwind units of 4, 6, 8, 12, 16, 20, 24 for consistent rhythm
-- Component padding: p-6 to p-8
-- Section padding: py-16 md:py-24
-- Grid gaps: gap-6 to gap-8
-- Container max-width: max-w-6xl
-
-**Grid Structure**:
-- Skills Grid: grid-cols-2 md:grid-cols-3 lg:grid-cols-4
-- Projects: grid-cols-1 lg:grid-cols-2
-- Certifications: grid-cols-1 md:grid-cols-2 lg:grid-cols-3
-- Experience/Education: Single column timeline
+**Spacing Primitives**: Use Tailwind units of 4, 6, 8, 12, 16, 20, 24 for consistent vertical rhythm
+- Container max-width: 1280px (max-w-7xl)
+- Section padding: py-20 to py-32 for desktop, py-12 for mobile
+- Component spacing: gap-6 to gap-8 for grids
 
 ### D. Component Library
 
-**Navigation**:
-- Fixed header with blur background (backdrop-blur-md bg-background/80)
-- Logo/name on left, nav links on right
-- Mobile: Hamburger menu with slide-in drawer
-- Smooth scroll to sections
+**Navigation Bar**
+- Fixed/sticky header with dark semi-transparent background
+- Logo/name on left
+- Nav items: Projects | Tech Stack | Achievements | Experience | Certifications | Contact Me | LinkedIn | Resume
+- Smooth underline hover effect on nav items
 
-**Hero Section**:
-- Full-width background with professional headshot or cloud/DevOps themed imagery
-- Large headline with name and role
-- Animated terminal-style subheading showing "DevOps Engineer | Cloud Enthusiast | AWS Certified"
-- Dual CTAs: "View Projects" (primary), "Download CV" (outline with blur background)
-- Height: min-h-screen with content centered
+**Hero Section**
+- Circular profile image (Risha's photo) with subtle glow/border effect
+- Large heading: "Risha Batra"
+- Tagline: "Learning to protect what connects us." (cybersecurity adaptation)
+- Bio paragraph highlighting cybersecurity focus: OSINT, vulnerability assessment, incident response
+- Two CTA buttons: "View Projects →" and "Contact Me →"
 
-**Skills Section**:
-- Three-column card layout (Languages | Tools | Platforms)
-- Each skill card with icon, name, and proficiency indicator
-- Subtle hover effect (scale-105 transition)
-- Background: Surface color with border
+**Tech Stack Infinite Carousel**
+- Horizontal auto-scrolling ticker with cybersecurity tools and technologies
+- Two rows for visual depth (one scrolling left, one right)
+- Technologies from resume: Python, C, C++, Bash, Nmap, Burp Suite, Metasploit, Nessus, Hydra, Wireshark, Redline, KAPE, Autopsy, Volatility, TheHive, Velociraptor, Linux (Kali), Git/GitHub
+- Each tech badge: dark background, rounded corners, icon + label
+- Smooth, continuous animation without pause
 
-**Work Experience & Education**:
-- Vertical timeline with connecting line
-- Left-aligned date/duration, right-aligned content
-- Cards with company/institution name, role, achievements
-- Bullet points for responsibilities
+**Projects Section** (Separate Page)
+- Grid layout (2 columns on desktop, 1 on mobile)
+- Project cards with:
+  - Project name (Vuln-Detector, ForgeStrike, SecureVision)
+  - Brief description
+  - Tech tags
+  - Link to GitHub/demo
+- Hover effect: subtle lift and glow
 
-**Projects Showcase**:
-- Two-column grid for featured projects
-- Each card includes: Project name, tech stack tags, description, GitHub link
-- Hover effect: slight elevation (shadow-lg)
-- Tech stack badges in accent colors
+**Tech Stack Page** (Detailed)
+- Categorized sections: Languages | Security Tools | Forensics & IR | Operating Systems | Other Tools
+- Icon grid layout with labels
+- Same dark gradient background as home page
 
-**Certifications**:
-- Three-column grid of certification cards
-- Badge/logo placeholder, certification name, issuing organization
-- "Verify" link for credential validation
-- Icon: shield or certificate symbol
+**Achievements Section**
+- Timeline or card-based layout
+- TryHackMe badge/rank prominently displayed
+- E-Cell competition ranking
+- Leadership roles highlighted
 
-**Contact Section**:
-- Centered layout with social links (LinkedIn, GitHub, Email)
-- Large icon buttons with labels
-- Background: Gradient from primary to secondary accent (subtle, 10% opacity)
+**Experience Section**
+- Timeline layout with three internships
+- Company name, role, duration, location
+- Key bullet points for each role
+- Dark cards with left border accent
 
-**Footer**:
-- Simple copyright, social links, "Built with Next.js" badge
-- Background: Darkest surface color
+**Certifications Grid**
+- Badge-style cards for each certification
+- Issuing organization logo/name
+- Certificate name
+- Grid layout (3-4 columns on desktop)
+
+**Contact Section**
+- Email, phone, LinkedIn, GitHub, TryHackMe links
+- Social icons with hover effects
+- Simple form or direct contact buttons
 
 ### E. Animations
+**Minimal, Purposeful Animations**
+- Tech stack infinite scroll (continuous, smooth)
+- Subtle fade-in on scroll for sections (0.3s duration)
+- Button hover: slight scale (1.05) and glow effect
+- Nav link underline slide-in on hover
+- Card hover: translateY(-4px) with shadow increase
 
-**Minimal, Performance-Focused**:
-- Scroll-triggered fade-in for sections (opacity 0 to 1, translateY 20px to 0)
-- Terminal typing effect in hero (character-by-character reveal, 50ms delay)
-- Smooth scroll behavior for navigation links
-- Button hover: subtle scale (1.02) with 200ms transition
-- Card hover: shadow and slight elevation only
-- NO complex animations, parallax, or scroll-jacking
+---
 
 ## Images
 
-**Large Hero Image**: Yes - Full-width background image behind hero content
-- Description: Professional workspace with laptop showing terminal/code, cloud infrastructure diagram on screen, or abstract cloud/DevOps visualization with gradients in brand colors
-- Placement: Full hero section background with dark overlay (opacity 40%) for text readability
-- Style: High-quality, modern, slightly desaturated to not compete with UI
+**Profile Picture**
+- Location: Hero section, centered above name
+- Style: Circular crop, 200-250px diameter
+- Treatment: Subtle cyan glow/ring around border, matches accent color
+- Description: Use Risha's uploaded professional photo
 
-**Project Thumbnails**: Optional placeholders
-- Description: Screenshots of AWS console, Jenkins pipeline, or project architecture diagrams
-- Placement: Within project cards as visual preview
+**No other images required** - the design relies on gradients, typography, and tech stack icons (use Font Awesome or similar icon libraries via CDN for tool/tech icons)
 
-**Professional Headshot**: Recommended
-- Placement: Hero section (right side on desktop, above text on mobile) or About section
-- Style: Circular frame with subtle border in accent color
+---
 
-## Layout Sections (In Order)
+## Cybersecurity Theming Adaptations
 
-1. **Navigation Header** - Fixed, minimal height
-2. **Hero** - Full viewport with image background
-3. **About/Summary** - Single column, max-w-3xl centered
-4. **Skills** - Multi-column grid
-5. **Work Experience** - Timeline layout
-6. **Projects** - Two-column showcase
-7. **Certifications** - Three-column grid
-8. **Education** - Timeline layout
-9. **Achievements** - Two-column list with icons
-10. **Contact** - Centered with large CTAs
-11. **Footer** - Minimal, full-width
+**Visual Elements**
+- Maintain dark, professional aesthetic (aligns with hacker/security culture)
+- Cyan/blue accents evoke terminal/matrix aesthetic
+- Tech stack badges use security tool icons (lock, shield, terminal icons from Heroicons)
 
-**Responsive Behavior**: All multi-column layouts collapse to single column on mobile (< md breakpoint)
+**Content Tone**
+- Professional but approachable
+- Security-focused language: "threat detection," "vulnerability assessment," "OSINT," "incident response"
+- Emphasize hands-on experience and practical skills
+
+**Navigation Priority**
+- Projects first (showcases technical skills)
+- Tech Stack (demonstrates tool proficiency)
+- Experience and Achievements validate expertise
+- Certifications add credibility
+
+---
+
+## Responsive Behavior
+- Mobile: Single column layouts, stacked nav (hamburger menu)
+- Tablet: 2-column grids where applicable
+- Desktop: Full multi-column layouts, fixed navigation
+- Tech stack carousel: Scales icons appropriately, maintains smooth scroll

@@ -7,7 +7,7 @@ pipeline {
     }
 
     options {
-        // Abort previous running build if new build starts
+        // Abort previous running build when new build starts
         disableConcurrentBuilds()
     }
 
@@ -38,25 +38,20 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                dir('client') {
-                    // Clean node_modules and previous builds for a fresh install
-                    sh 'rm -rf node_modules dist'
-                    sh 'npm install'
-                    sh 'npm install esbuild --force'
-                }
+                sh 'npm install'
+                // Force reinstall esbuild to fix exec format error
+                sh 'npm install esbuild --force'
             }
         }
 
-        stage('Build and Deploy') {
+        stage('Build and Run App') {
             steps {
-                dir('client') {
-                    sh 'npm run build'
-                    sh '''
-                      IP=$(curl -s ifconfig.me)
-                      echo "Your Next.js app will run at http://$IP:$PORT"
-                      npm start
-                    '''
-                }
+                sh 'npm run build'
+                sh '''
+                  IP=$(curl -s ifconfig.me)
+                  echo "Your Next.js app will run at http://$IP:$PORT"
+                  npm start
+                '''
             }
         }
     }

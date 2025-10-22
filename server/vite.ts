@@ -68,21 +68,11 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  // When running from source, the build output is at <repo>/dist/public.
-  // When running the compiled server from <repo>/dist/index.js, import.meta.dirname
-  // will already be <repo>/dist, so the public folder will be at <repo>/dist/public
-  // (not <repo>/dist/dist/public). Try both candidate paths and pick the one
-  // that exists.
-  const candidates = [
-    path.resolve(import.meta.dirname, "dist", "public"),
-    path.resolve(import.meta.dirname, "public"),
-  ];
+  const distPath = path.resolve(import.meta.dirname, "public");
 
-  const distPath = candidates.find((p) => fs.existsSync(p));
-
-  if (!distPath) {
+  if (!fs.existsSync(distPath)) {
     throw new Error(
-      `Could not find the build directory. Checked: ${candidates.join(", ")}. Make sure to build the client first`,
+      `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );
   }
 

@@ -1,23 +1,26 @@
 // server/index.ts
-import express2 from "express";
+import express3 from "express";
 
 // server/routes.ts
 import { createServer } from "http";
+import express from "express";
+import path from "path";
 async function registerRoutes(app2) {
+  app2.use("/attached_assets", express.static(path.join(process.cwd(), "attached_assets")));
   const httpServer = createServer(app2);
   return httpServer;
 }
 
 // server/vite.ts
-import express from "express";
+import express2 from "express";
 import fs from "fs";
-import path2 from "path";
+import path3 from "path";
 import { createServer as createViteServer, createLogger } from "vite";
 
 // vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
+import path2 from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 var vite_config_default = defineConfig({
   plugins: [
@@ -34,14 +37,14 @@ var vite_config_default = defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets")
+      "@": path2.resolve(import.meta.dirname, "client", "src"),
+      "@shared": path2.resolve(import.meta.dirname, "shared"),
+      "@assets": path2.resolve(import.meta.dirname, "attached_assets")
     }
   },
-  root: path.resolve(import.meta.dirname, "client"),
+  root: path2.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path2.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true
   },
   server: {
@@ -87,7 +90,7 @@ async function setupVite(app2, server) {
   app2.use("*", async (req, res, next) => {
     const url = req.originalUrl;
     try {
-      const clientTemplate = path2.resolve(
+      const clientTemplate = path3.resolve(
         import.meta.dirname,
         "..",
         "client",
@@ -107,34 +110,25 @@ async function setupVite(app2, server) {
   });
 }
 function serveStatic(app2) {
-  const candidates = [
-    path2.resolve(import.meta.dirname, "dist", "public"),
-    path2.resolve(import.meta.dirname, "public")
-  ];
-  const distPath = candidates.find((p) => fs.existsSync(p));
-  if (!distPath) {
+  const distPath = path3.resolve(import.meta.dirname, "public");
+  if (!fs.existsSync(distPath)) {
     throw new Error(
-      `Could not find the build directory. Checked: ${candidates.join(", ")}. Make sure to build the client first`
+      `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
   }
-  app2.use(express.static(distPath));
+  app2.use(express2.static(distPath));
   app2.use("*", (_req, res) => {
-    res.sendFile(path2.resolve(distPath, "index.html"));
+    res.sendFile(path3.resolve(distPath, "index.html"));
   });
 }
 
 // server/index.ts
-var app = express2();
-app.set("env", process.env.NODE_ENV || "production");
-app.use(express2.json({
-  verify: (req, _res, buf) => {
-    req.rawBody = buf;
-  }
-}));
-app.use(express2.urlencoded({ extended: false }));
+var app = express3();
+app.use(express3.json());
+app.use(express3.urlencoded({ extended: false }));
 app.use((req, res, next) => {
   const start = Date.now();
-  const path3 = req.path;
+  const path4 = req.path;
   let capturedJsonResponse = void 0;
   const originalResJson = res.json;
   res.json = function(bodyJson, ...args) {
@@ -143,8 +137,8 @@ app.use((req, res, next) => {
   };
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path3.startsWith("/api")) {
-      let logLine = `${req.method} ${path3} ${res.statusCode} in ${duration}ms`;
+    if (path4.startsWith("/api")) {
+      let logLine = `${req.method} ${path4} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
@@ -169,49 +163,12 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
-  const port = parseInt(process.env.PORT || "5000", 10);
-  const maxRetries = parseInt(process.env.PORT_TRIES || "10", 10);
-  const startPort = port;
-  const startServerOnPort = (p) => new Promise((resolve, reject) => {
-    const onError = (err) => {
-      server.off("listening", onListen);
-      server.off("error", onError);
-      reject(err);
-    };
-    const onListen = () => {
-      server.off("error", onError);
-      server.off("listening", onListen);
-      resolve();
-    };
-    server.once("error", onError);
-    server.once("listening", onListen);
-    try {
-      server.listen({ port: p, host: "0.0.0.0" });
-    } catch (err) {
-      server.off("error", onError);
-      server.off("listening", onListen);
-      reject(err);
-    }
+  const port = parseInt(process.env.PORT || "3000", 10);
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true
+  }, () => {
+    log(`serving on port ${port}`);
   });
-  (async () => {
-    for (let i = 0; i < maxRetries; i++) {
-      const tryPort = startPort + i;
-      try {
-        await startServerOnPort(tryPort);
-        log(`serving on port ${tryPort}`);
-        break;
-      } catch (err) {
-        if (err && err.code === "EADDRINUSE") {
-          log(`port ${tryPort} in use, trying next port...`);
-          if (i === maxRetries - 1) {
-            log(`failed to bind to a port after ${maxRetries} attempts`);
-            process.exit(1);
-          }
-        } else {
-          log(`server error during startup: ${err?.code || err?.message || err}`);
-          process.exit(1);
-        }
-      }
-    }
-  })();
 })();

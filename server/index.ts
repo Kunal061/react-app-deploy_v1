@@ -3,24 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-
-// Ensure Express respects the NODE_ENV environment variable. By default
-// Express uses 'development' which will enable the Vite dev middleware.
-// For production builds (including when NODE_ENV is not explicitly set
-// in some deployment environments) we default to 'production' so the
-// server serves the built static assets.
-app.set('env', process.env.NODE_ENV || 'production');
-
-declare module 'http' {
-  interface IncomingMessage {
-    rawBody: unknown
-  }
-}
-app.use(express.json({
-  verify: (req, _res, buf) => {
-    req.rawBody = buf;
-  }
-}));
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
@@ -74,62 +57,68 @@ app.use((req, res, next) => {
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Default to 5000 if not specified. Prefer binding to localhost in environments
+  // where binding to 0.0.0.0 is not supported (some sandboxed CI or container runtimes).
   const port = parseInt(process.env.PORT || '5000', 10);
-  // Try to start the server on the configured port. If the port is in use
-  // (EADDRINUSE), attempt the next port up to a small number of retries.
-  // This makes local development more resilient when the default port is busy.
-  const maxRetries = parseInt(process.env.PORT_TRIES || "10", 10);
-  const startPort = port;
+  const requestedHost = process.env.HOST || '127.0.0.1';
 
-  const startServerOnPort = (p: number) =>
-    new Promise<void>((resolve, reject) => {
-      const onError = (err: any) => {
-        server.off("listening", onListen);
-        server.off("error", onError);
-        reject(err);
-      };
+  // Try a sequence of hosts and options to handle environments where binding to
+  // certain addresses or using reusePort is not supported (e.g. sandboxed runners).
+  const hostCandidates: Array<string | undefined> = [requestedHost, '127.0.0.1', 'localhost', undefined];
 
-      const onListen = () => {
-        server.off("error", onError);
-        server.off("listening", onListen);
+  async function tryListen(host: string | undefined, reusePort: boolean) {
+    return new Promise<void>((resolve, reject) => {
+      const opts: any = { port };
+      if (host) opts.host = host;
+      if (reusePort) opts.reusePort = true;
+
+      const onListening = () => {
+        log(`serving on ${host ?? '0.0.0.0'}:${port} ${reusePort ? '(reusePort)' : ''}`);
+        server.removeListener('error', onError);
         resolve();
       };
 
-      server.once("error", onError);
-      server.once("listening", onListen);
+      const onError = (err: any) => {
+        server.removeListener('listening', onListening);
+        reject(err);
+      };
 
+      server.once('error', onError);
+      server.once('listening', onListening);
       try {
-        server.listen({ port: p, host: "0.0.0.0" });
+        // Node's server.listen may throw synchronously on some invalid options
+        server.listen(opts);
       } catch (err) {
-        server.off("error", onError);
-        server.off("listening", onListen);
+        server.removeListener('listening', onListening);
+        server.removeListener('error', onError);
         reject(err);
       }
     });
+  }
 
   (async () => {
-    for (let i = 0; i < maxRetries; i++) {
-      const tryPort = startPort + i;
-      try {
-        await startServerOnPort(tryPort);
-        log(`serving on port ${tryPort}`);
-        break;
-      } catch (err: any) {
-        if (err && err.code === "EADDRINUSE") {
-          log(`port ${tryPort} in use, trying next port...`);
-          // continue to next iteration
-          if (i === maxRetries - 1) {
-            log(`failed to bind to a port after ${maxRetries} attempts`);
+    // Try every candidate host, first with reusePort=true then with reusePort=false
+    for (const host of hostCandidates) {
+      for (const reuse of [true, false]) {
+        try {
+          await tryListen(host, reuse);
+          return; // success
+        } catch (err: any) {
+          // If operation not supported, try next candidate; otherwise exit with the error
+          if (err && err.code === 'ENOTSUP') {
+            log(`ENOTSUP when binding ${host ?? '0.0.0.0'}:${port} (reusePort=${reuse}), trying next option`);
+            // continue to next attempt
+          } else if (err && err.code === 'EADDRINUSE') {
+            log(`port ${port} already in use on ${host ?? '0.0.0.0'}; ${reuse ? 'reusePort' : 'no-reuse'} - trying next option`);
+          } else {
+            log(`server listen failed: ${err && err.message ? err.message : String(err)}`);
             process.exit(1);
           }
-        } else {
-          log(`server error during startup: ${err?.code || err?.message || err}`);
-          process.exit(1);
         }
       }
     }
+
+    log('failed to bind to any host/option combination; exiting');
+    process.exit(1);
   })();
 })();
